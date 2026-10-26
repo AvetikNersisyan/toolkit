@@ -13,12 +13,12 @@ module.exports = {
       // Run Next's own binary directly (more reliable under pm2 than `npm run start`).
       script: "node_modules/next/dist/bin/next",
       // Bind to localhost only; nginx is the public entry point.
-      args: "start -p 3000 -H 127.0.0.1",
+      args: "start -p 3030 -H 127.0.0.1",
       instances: 1,
       exec_mode: "fork",
       env: {
         NODE_ENV: "production",
-        PORT: "3000",
+        PORT: "3030",
       },
       max_memory_restart: "400M",
       autorestart: true,
