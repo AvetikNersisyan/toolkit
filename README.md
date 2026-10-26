@@ -49,6 +49,7 @@ Photos are resized per device by Next.js (`/_next/image`: WebP, or JPEG for brow
 - Phone numbers are normalised to `+374XXXXXXXX`.
 - The same phone ordering the same product within 10 minutes is treated as a double tap (returns the existing order). More than 5 orders from one IP in 10 minutes is refused. A hidden honeypot field drops most bots.
 - UTM parameters and `fbclid` from the ad link are saved with each order, so you can see which campaign sold what.
+- Each new order can be sent to Telegram (`src/lib/telegram.ts`; set `TELEGRAM_BOT_TOKEN` and `TELEGRAM_CHAT_ID`, see DEPLOY.md). A failed alert never blocks the order.
 
 **Admin:** open `/admin`, log in with `ADMIN_USER` / `ADMIN_PASSWORD`. Filter by status, tap the phone number to call, change status (Նոր → Հաստատված → Ուղարկված → Առաքված, or Չեղարկված / Վերադարձված), add a note, download CSV. If either variable is empty, the admin is switched off.
 

@@ -7,6 +7,7 @@ import { normalizeArmenianPhone } from "@/lib/format";
 import { sendOrderEvent } from "@/lib/meta-capi";
 import { calcTotal, MAX_QTY } from "@/lib/pricing";
 import { getProductById } from "@/lib/products";
+import { notifyNewOrder } from "@/lib/telegram";
 
 export const runtime = "nodejs";
 
@@ -102,6 +103,23 @@ export async function POST(req: NextRequest) {
       userAgent,
     })
     .returning({ id: orders.id });
+
+  // Telegram alert to the shop, also after responding; a failed alert never affects the order.
+  after(() =>
+    notifyNewOrder({
+      id: created.id,
+      productName: product.name,
+      qty: input.qty,
+      addonName: withAddon ? product.addon!.name : null,
+      addonPrice: withAddon ? product.addon!.price : 0,
+      total,
+      customerName: input.name,
+      phone,
+      utmSource: input.utmSource,
+      utmCampaign: input.utmCampaign,
+      utmContent: input.utmContent,
+    }),
+  );
 
   // Send the server-side Meta event after responding, so the customer never waits on it.
   if (input.eventId) {

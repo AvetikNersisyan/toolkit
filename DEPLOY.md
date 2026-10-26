@@ -182,6 +182,31 @@ For extra hardening you can allow 443 only from Cloudflare's ranges (see
 - Place a test order, then check `https://toolkit.am/admin` — the order shows with the **real** visitor IP (confirms the Cloudflare real-IP config).
 - `pm2 logs toolkit` for app logs; `sudo tail -f /var/log/nginx/error.log` for proxy issues.
 
+## Telegram alerts for new orders
+
+Every new order is sent to Telegram (order number, product, total, name, phone, ad campaign, admin link).
+Nothing is sent until both variables are set.
+
+1. In Telegram, open **@BotFather** → `/newbot` → pick a name. Copy the token it gives you.
+2. Open your new bot and press **Start** (or send it any message). For a group: add the bot to the group and send a message there.
+3. Find the chat id — run this on the server and look for `"chat":{"id":…}` (a group id starts with `-`):
+   ```bash
+   curl -s "https://api.telegram.org/bot<TOKEN>/getUpdates"
+   ```
+4. Add both to `/var/www/toolkit/.env.local` (several chats: comma-separated ids):
+   ```ini
+   TELEGRAM_BOT_TOKEN=<TOKEN>
+   TELEGRAM_CHAT_ID=<CHAT_ID>
+   ```
+5. `pm2 reload toolkit` — no rebuild needed, these are read when the app starts.
+6. Test the bot on its own, then place a test order:
+   ```bash
+   curl -s "https://api.telegram.org/bot<TOKEN>/sendMessage" -d chat_id=<CHAT_ID> -d text="ToolKit.Am test"
+   ```
+
+If an alert fails (wrong id, bot blocked), the order is still saved and the reason appears in `pm2 logs toolkit` as `[telegram] …`.
+Keep the token secret: anyone with it can send messages as your bot.
+
 ## Backups
 
 Products, orders and uploads are now real data. A nightly copy of both is enough:
