@@ -1,0 +1,40 @@
+@import "tailwindcss";
+
+@theme {
+  --font-sans: "Noto Sans Armenian", system-ui, -apple-system, "Segoe UI", sans-serif;
+
+  --color-ink: #1c1f22;
+  --color-ink-2: #3d444a;
+  --color-muted: #5b636b;
+  --color-line: #e3e6e8;
+  --color-soft: #f7f8f9;
+  --color-placeholder: #f1f3f4;
+  --color-accent: #c2410c;
+  --color-accent-dark: #9a3412;
+  --color-sale: #b91c1c;
+  --color-ok: #15803d;
+  --color-highlight: #facc15;
+}
+
+html {
+  scroll-behavior: smooth;
+  /* keep anchored sections clear of the sticky countdown bar */
+  scroll-padding-top: 64px;
+}
+
+body {
+  background: #ffffff;
+  color: var(--color-ink);
+  font-family: var(--font-sans);
+  -webkit-font-smoothing: antialiased;
+}
+
+details > summary {
+  list-style: none;
+}
+details > summary::-webkit-details-marker {
+  display: none;
+}
+details[open] .faq-chevron {
+  transform: rotate(180deg);
+}
