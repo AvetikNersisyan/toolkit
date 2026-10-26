@@ -1,10 +1,10 @@
 // Shop-wide settings. Everything in [brackets] is a placeholder to replace.
 
 export const site = {
-  shopName: "[ԽԱՆՈՒԹԻ ԱՆՈՒՆ]",
+  shopName: "ToolKit.Am",
   /** Shown in the header and footer; used for the tel: link. Digits only after +. */
   phone: "+37400000000",
-  phoneDisplay: "[+374 XX XXX XXX]",
+  phoneDisplay: "[+374 44 19 35 00]",
   address: "[Հասցե]",
   workingHours: "[Աշխատանքային ժամեր]",
   legalName: "[ՀՎՀՀ / իրավաբանական անուն]",
@@ -17,8 +17,8 @@ export const site = {
   },
 
   delivery: {
-    yerevanDays: "[1]",
-    regionsDays: "[2–3]",
+    yerevanDays: "2",
+    regionsDays: "4-6",
     priceText: "[անվճար / ___ ֏]",
   },
   warrantyMonths: 3,
