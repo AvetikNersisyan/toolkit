@@ -11,6 +11,7 @@ const COLUMNS = [
   "status",
   "customerName",
   "phone",
+  "productId",
   "productSlug",
   "productName",
   "qty",

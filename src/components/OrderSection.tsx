@@ -4,12 +4,12 @@ import Image from "next/image";
 import { useRef, useState } from "react";
 import { formatAmd, normalizeArmenianPhone } from "@/lib/format";
 import { calcTotal, MAX_QTY } from "@/lib/pricing";
+import type { Product } from "@/lib/product-types";
 import { newEventId, ORDER_EVENT, readAttribution, track } from "@/lib/tracking";
-import type { Product } from "@/data/products";
 import { SuccessIcon } from "./Icons";
 
 type Props = {
-  product: Pick<Product, "slug" | "name" | "price" | "oldPrice" | "addon">;
+  product: Pick<Product, "id" | "name" | "price" | "oldPrice" | "addon">;
   image: string | null;
   deliveryPriceText: string;
   callbackMinutes: number;
@@ -27,12 +27,13 @@ export function OrderSection({ product, image, deliveryPriceText, callbackMinute
   const checkoutTracked = useRef(false);
   const honeypot = useRef<HTMLInputElement>(null);
 
-  const total = calcTotal(product as Product, qty, addon);
+  const total = calcTotal(product, qty, addon);
+  const contentId = String(product.id);
 
   function onFirstFocus() {
     if (checkoutTracked.current) return;
     checkoutTracked.current = true;
-    track("InitiateCheckout", { content_ids: [product.slug], content_type: "product", value: total, currency: "AMD" });
+    track("InitiateCheckout", { content_ids: [contentId], content_type: "product", value: total, currency: "AMD" });
   }
 
   async function submit(e: React.FormEvent) {
@@ -52,7 +53,7 @@ export function OrderSection({ product, image, deliveryPriceText, callbackMinute
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          slug: product.slug,
+          productId: product.id,
           qty,
           addon,
           name: name.trim(),
@@ -70,7 +71,7 @@ export function OrderSection({ product, image, deliveryPriceText, callbackMinute
       }
       track(
         ORDER_EVENT,
-        { content_ids: [product.slug], content_type: "product", num_items: qty, value: total, currency: "AMD" },
+        { content_ids: [contentId], content_type: "product", num_items: qty, value: total, currency: "AMD" },
         eventId,
       );
       setStatus({ kind: "done", orderId: data.orderId ?? 0 });

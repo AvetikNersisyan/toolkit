@@ -4,6 +4,7 @@ import { site } from "@/data/site";
 import "./globals.css";
 
 export const metadata: Metadata = {
+  metadataBase: new URL(site.url),
   title: site.shopName,
   description: "Գործիքներ՝ վճարում ստանալիս, առաքում ամբողջ Հայաստանում։",
   robots: { index: true, follow: true },

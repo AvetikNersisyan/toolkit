@@ -20,6 +20,9 @@
 # production
 /build
 
+# admin uploads (local dev default for UPLOAD_DIR)
+/uploads
+
 # misc
 .DS_Store
 *.pem

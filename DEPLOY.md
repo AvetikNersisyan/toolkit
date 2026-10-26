@@ -58,13 +58,15 @@ CREATE DATABASE toolkit OWNER toolkit;
 SQL
 ```
 
-Connection string for later: `postgres://toolkit:<DB_PASSWORD>@localhost:5432/toolkit`
+Connection string for later: `postgres://toolkit:<DB_PASSWORD>@localhost:<PORT>/toolkit`
+
+> Check the port with `pg_lsclusters` — it isn't always 5432 (on toolkit.am's VPS it's **5434**).
 
 ## 4. Server: get the code and the env file
 
 ```bash
-sudo mkdir -p /var/www/toolkit /var/log/toolkit
-sudo chown -R $USER:$USER /var/www/toolkit /var/log/toolkit
+sudo mkdir -p /var/www/toolkit /var/www/toolkit-uploads /var/log/toolkit
+sudo chown -R $USER:$USER /var/www/toolkit /var/www/toolkit-uploads /var/log/toolkit
 git clone git@github.com:<you>/toolkit.git /var/www/toolkit
 cd /var/www/toolkit
 cp .env.example .env.local
@@ -74,7 +76,10 @@ nano .env.local
 Fill `.env.local`:
 
 ```ini
-DATABASE_URL=postgres://toolkit:<DB_PASSWORD>@localhost:5432/toolkit
+DATABASE_URL=postgres://toolkit:<DB_PASSWORD>@localhost:<PORT>/toolkit
+
+# Product photos/videos uploaded in the admin. Outside the repo so a re-clone can't lose them.
+UPLOAD_DIR=/var/www/toolkit-uploads
 
 ADMIN_USER=admin
 ADMIN_PASSWORD=<generate: openssl rand -base64 24>
@@ -94,7 +99,7 @@ META_TEST_EVENT_CODE=
 ```bash
 cd /var/www/toolkit
 npm ci                 # installs dev deps too — needed for drizzle-kit + the build
-npm run db:migrate     # creates the orders table
+npm run db:migrate     # creates the orders and products tables
 npm run build
 ```
 
@@ -113,7 +118,7 @@ pm2 save
 pm2 startup systemd      # run the sudo command it prints, so the app survives reboots
 ```
 
-Check it's up locally: `curl -I http://127.0.0.1:3000/hammer-drill` → `200 OK`.
+Check it's up locally: `curl -I http://127.0.0.1:3030/` → `200 OK`.
 
 ---
 
@@ -146,7 +151,20 @@ sudo nginx -t
 sudo systemctl reload nginx
 ```
 
-## 9. Firewall (optional but recommended)
+## 9. How images are cached
+
+- Uploaded originals (`/uploads/*.webp`, `*.mp4`) have one-year immutable cache headers and file
+  extensions, so Cloudflare caches them automatically.
+- Resized copies (`/_next/image?url=…&w=…`) are made once per width and kept on the VPS in
+  `.next/cache/images`; later requests are a quick file read. Cloudflare does not cache this path by default.
+
+**Optional, for heavy traffic:** a Cache Rule (*URI Path* equals `/_next/image` → **Eligible for cache**,
+Edge TTL: use cache-control header) moves these to Cloudflare's edge. Trade-off: Next sends WebP to
+browsers that accept it and JPEG to the rest, but Cloudflare's free plan stores one copy per URL
+regardless of the browser. Nearly every browser accepts WebP, so the cached copy is almost always WebP,
+and a very old device (iOS 13 or earlier) could then get a photo it can't show. Without the rule nothing changes for visitors.
+
+## 10. Firewall (optional but recommended)
 
 ```bash
 sudo ufw allow OpenSSH
@@ -157,11 +175,23 @@ sudo ufw enable
 For extra hardening you can allow 443 only from Cloudflare's ranges (see
 `deploy/nginx/cloudflare-realip.conf` for the list).
 
-## 10. Verify
+## 11. Verify
 
-- Visit `https://toolkit.am/hammer-drill` — the page loads over HTTPS (Cloudflare cert in the browser).
-- Place a test order, then open `https://toolkit.am/admin` and log in with `ADMIN_USER` / `ADMIN_PASSWORD` — the order shows with the **real** visitor IP (confirms the Cloudflare real-IP config).
+- Open `https://toolkit.am/admin/products`, log in with `ADMIN_USER` / `ADMIN_PASSWORD`, create a product, upload a photo, set it to **Published** and save.
+- Visit `https://toolkit.am/<slug>` — the page loads over HTTPS with the photo.
+- Place a test order, then check `https://toolkit.am/admin` — the order shows with the **real** visitor IP (confirms the Cloudflare real-IP config).
 - `pm2 logs toolkit` for app logs; `sudo tail -f /var/log/nginx/error.log` for proxy issues.
+
+## Backups
+
+Products, orders and uploads are now real data. A nightly copy of both is enough:
+
+```bash
+pg_dump "$DATABASE_URL" | gzip > ~/backups/toolkit-$(date +%F).sql.gz
+tar -czf ~/backups/uploads-$(date +%F).tar.gz -C /var/www toolkit-uploads
+```
+
+Keep copies off the VPS too (download them, or sync to cloud storage).
 
 ---
 
@@ -175,3 +205,25 @@ npm run db:migrate   # only if the schema changed
 npm run build
 pm2 reload toolkit
 ```
+
+Product edits made in the admin need none of this: pages refresh as soon as you save.
+
+## One-time upgrade to the product admin (servers deployed before it)
+
+```bash
+sudo mkdir -p /var/www/toolkit-uploads && sudo chown $USER:$USER /var/www/toolkit-uploads
+printf '\nUPLOAD_DIR=/var/www/toolkit-uploads\n' >> /var/www/toolkit/.env.local
+
+cd /var/www/toolkit
+git pull
+npm ci
+npm run db:migrate      # adds products, product_images and orders.product_id
+npm run build
+pm2 reload toolkit
+
+# nginx: the upload size limit went from 2 MB to 70 MB
+sudo cp deploy/nginx/toolkit.am.conf /etc/nginx/sites-available/toolkit.am
+sudo nginx -t && sudo systemctl reload nginx
+```
+
+Then create your products at `/admin/products`.

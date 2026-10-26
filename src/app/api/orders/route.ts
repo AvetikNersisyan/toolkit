@@ -1,19 +1,19 @@
 import { and, count, eq, gte } from "drizzle-orm";
 import { after, NextResponse, type NextRequest } from "next/server";
 import { z } from "zod";
-import { getProduct } from "@/data/products";
 import { db } from "@/db";
 import { orders } from "@/db/schema";
 import { normalizeArmenianPhone } from "@/lib/format";
 import { sendOrderEvent } from "@/lib/meta-capi";
 import { calcTotal, MAX_QTY } from "@/lib/pricing";
+import { getProductById } from "@/lib/products";
 
 export const runtime = "nodejs";
 
 const opt = z.string().trim().max(300).optional();
 
 const OrderInput = z.object({
-  slug: z.string().max(100),
+  productId: z.number().int().positive(),
   qty: z.number().int().min(1).max(MAX_QTY),
   addon: z.boolean().default(false),
   name: z.string().trim().min(2).max(100),
@@ -47,7 +47,7 @@ export async function POST(req: NextRequest) {
   // Bots fill the hidden field; pretend success so they don't retry.
   if (input.website) return NextResponse.json({ ok: true, orderId: 0 });
 
-  const product = getProduct(input.slug);
+  const product = await getProductById(input.productId, { publishedOnly: true });
   if (!product) return fail("Ապրանքը չի գտնվել։", 404);
 
   const phone = normalizeArmenianPhone(input.phone);
@@ -61,7 +61,7 @@ export async function POST(req: NextRequest) {
   const dup = await db
     .select({ id: orders.id })
     .from(orders)
-    .where(and(eq(orders.phone, phone), eq(orders.productSlug, product.slug), gte(orders.createdAt, since)))
+    .where(and(eq(orders.phone, phone), eq(orders.productId, product.id), gte(orders.createdAt, since)))
     .limit(1);
   if (dup[0]) return NextResponse.json({ ok: true, orderId: dup[0].id });
 
@@ -80,6 +80,7 @@ export async function POST(req: NextRequest) {
   const [created] = await db
     .insert(orders)
     .values({
+      productId: product.id,
       productSlug: product.slug,
       productName: product.name,
       qty: input.qty,
@@ -118,7 +119,7 @@ export async function POST(req: NextRequest) {
         fbp,
         fbc,
         value: total,
-        contentId: product.slug,
+        contentId: String(product.id),
         qty: input.qty,
       }),
     );

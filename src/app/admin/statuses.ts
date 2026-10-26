@@ -1,4 +1,4 @@
-import type { OrderStatus } from "@/db/schema";
+import type { OrderStatus, ProductStatus } from "@/db/schema";
 
 export const STATUS_LABEL: Record<OrderStatus, string> = {
   new: "Նոր",
@@ -16,4 +16,16 @@ export const STATUS_STYLE: Record<OrderStatus, string> = {
   delivered: "bg-[#dcfce7] text-[#14532d]",
   cancelled: "bg-[#f3f4f6] text-[#374151]",
   returned: "bg-[#fee2e2] text-[#7f1d1d]",
+};
+
+export const PRODUCT_STATUS_LABEL: Record<ProductStatus, string> = {
+  draft: "Սևագիր",
+  published: "Հրապարակված",
+  archived: "Արխիվ",
+};
+
+export const PRODUCT_STATUS_STYLE: Record<ProductStatus, string> = {
+  draft: "bg-[#fef3c7] text-[#78350f]",
+  published: "bg-[#dcfce7] text-[#14532d]",
+  archived: "bg-[#f3f4f6] text-[#374151]",
 };

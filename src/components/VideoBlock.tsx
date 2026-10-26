@@ -1,24 +1,11 @@
 "use client";
 
 import { useState } from "react";
-import type { ProductVideo } from "@/data/products";
+import type { ProductVideo } from "@/lib/product-types";
 import { PlayIcon } from "./Icons";
 
-/** `video` is null when there is no video file yet: shows a placeholder. */
-export function VideoBlock({ video }: { video: ProductVideo | null }) {
+export function VideoBlock({ video }: { video: ProductVideo }) {
   const [ytLoaded, setYtLoaded] = useState(false);
-
-  if (!video) {
-    return (
-      <div className="flex aspect-video flex-col items-center justify-center gap-3 rounded-xl border-2 border-dashed border-[#6b747c] bg-[#2a2e32] p-4 text-center">
-        <div className="flex h-[72px] w-[72px] items-center justify-center rounded-full bg-accent">
-          <PlayIcon className="h-7 w-7 text-white" />
-        </div>
-        <div className="font-bold">Տեսանյութ՝ 15–30 վրկ</div>
-        <div className="text-sm text-[#c9ced2]">Ավելացրեք demo.mp4 ֆայլը կամ YouTube հղումը products.ts-ում</div>
-      </div>
-    );
-  }
 
   if (video.type === "mp4") {
     return (

@@ -19,9 +19,11 @@ Production: `npm run build && npm run start`. Node 20+.
 
 | What | File |
 | --- | --- |
-| Products (names, prices, specs, offer end date, gift, upsell, FAQ) | `src/data/products.ts` |
+| Products (edited in the admin at `/admin/products`) | `products` / `product_images` tables, read via `src/lib/products.ts` |
+| Product editor (form, photo/video manager, server actions) | `src/app/admin/products/` |
+| Upload processing and serving | `src/lib/uploads.ts`, `src/app/uploads/[file]/route.ts` |
 | Shop settings (name, phone, messengers, delivery, warranty) | `src/data/site.ts` |
-| Product page layout | `src/app/[slug]/page.tsx` |
+| Product page layout | `src/components/ProductView.tsx` (route: `src/app/[slug]/page.tsx`) |
 | Order form | `src/components/OrderSection.tsx` |
 | Countdown (top bar + price box) | `src/components/Countdown.tsx` |
 | Order API | `src/app/api/orders/route.ts` |
@@ -33,15 +35,17 @@ Everything in `[brackets]` is placeholder text to replace.
 
 ## Adding a product
 
-1. Copy an entry in `src/data/products.ts` and give it a new `slug` (this becomes the URL).
-2. Put its photos in `public/products/<slug>/` (`main.jpg`, `2.jpg`, …, `box.jpg`, optionally `demo.mp4`). Square photos around 1200×1200 work best; the first one should match the ad.
-3. Rebuild/redeploy. Missing files show labelled placeholders, so you can launch before every photo is ready.
+1. `/admin/products` → **New product**: name, URL (slug) and price. It starts as a draft.
+2. Upload photos: the gallery (first = hero, ideally the ad photo), and optionally a "what's in the box" photo, a video poster and an MP4. Each file is stored once as WebP (videos as-is); nothing is cropped or generated. Square photos around 1200×1200 work best — the editor flags non-square ones.
+3. Fill in the rest (anything left empty hides its section), use **Preview** to check, set the status to **Published** and save. The page updates immediately — no rebuild.
 
-`offerEnd` sets the countdown (ISO time with `+04:00`). When it passes, the countdown hides and says the offer ended — update the date and price for the next promotion.
+The offer end (Yerevan time) sets the countdown. When it passes, the countdown says the offer ended — update the date and price for the next promotion. Archive a product instead of deleting it; old orders keep its name and price either way.
+
+Photos are resized per device by Next.js (`/_next/image`: WebP, or JPEG for browsers without WebP support) and cached on disk; see "How images are cached" in DEPLOY.md.
 
 ## Orders
 
-- The browser only sends product, quantity, upsell, name and phone. **Prices are always recalculated on the server** from `products.ts`.
+- The browser only sends product id, quantity, upsell, name and phone. **Prices are always recalculated on the server** from the `products` table, and only published products can be ordered.
 - Phone numbers are normalised to `+374XXXXXXXX`.
 - The same phone ordering the same product within 10 minutes is treated as a double tap (returns the existing order). More than 5 orders from one IP in 10 minutes is refused. A hidden honeypot field drops most bots.
 - UTM parameters and `fbclid` from the ad link are saved with each order, so you can see which campaign sold what.

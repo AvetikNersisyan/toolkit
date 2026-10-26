@@ -2,6 +2,8 @@
 
 export const site = {
   shopName: "ToolKit.Am",
+  /** Public address; used for absolute links such as the Meta share image. */
+  url: "https://toolkit.am",
   /** Shown in the header and footer; used for the tel: link. Digits only after +. */
   phone: "+37400000000",
   phoneDisplay: "[+374 44 19 35 00]",

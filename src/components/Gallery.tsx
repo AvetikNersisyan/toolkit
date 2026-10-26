@@ -4,8 +4,8 @@ import Image from "next/image";
 import { useState } from "react";
 import { Placeholder } from "./Placeholder";
 
-/** `images` entries are null when the file doesn't exist yet. */
-export function Gallery({ images, alt }: { images: (string | null)[]; alt: string }) {
+/** Empty `images` only happens for a draft in the admin preview (publishing requires a photo). */
+export function Gallery({ images, alt }: { images: string[]; alt: string }) {
   const [active, setActive] = useState(0);
   const main = images[active] ?? null;
 
@@ -15,14 +15,14 @@ export function Gallery({ images, alt }: { images: (string | null)[]; alt: strin
         {main ? (
           <Image src={main} alt={alt} fill priority={active === 0} sizes="(max-width: 860px) 100vw, 560px" className="object-contain" />
         ) : (
-          <Placeholder className="h-full" label="Ապրանքի հիմնական լուսանկար" hint="1200 × 1200 · նույնը, ինչ գովազդում" />
+          <Placeholder className="h-full" label="Ապրանքի հիմնական լուսանկար" hint="Ավելացրեք ադմինում" />
         )}
       </div>
       {images.length > 1 ? (
         <div className="flex gap-3">
           {images.map((src, i) => (
             <button
-              key={i}
+              key={src}
               type="button"
               onClick={() => setActive(i)}
               aria-label={`Լուսանկար ${i + 1}`}
@@ -31,11 +31,7 @@ export function Gallery({ images, alt }: { images: (string | null)[]; alt: strin
                 active === i ? "border-ink" : "border-transparent"
               }`}
             >
-              {src ? (
-                <Image src={src} alt="" fill sizes="120px" className="object-cover" />
-              ) : (
-                <span className="text-xs text-muted">Լուս. {i + 1}</span>
-              )}
+              <Image src={src} alt="" fill sizes="120px" className="object-cover" />
             </button>
           ))}
         </div>
