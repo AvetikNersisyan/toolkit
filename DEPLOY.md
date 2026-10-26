@@ -188,11 +188,16 @@ Every new order is sent to Telegram (order number, product, total, name, phone, 
 Nothing is sent until both variables are set.
 
 1. In Telegram, open **@BotFather** → `/newbot` → pick a name. Copy the token it gives you.
-2. Open your new bot and press **Start** (or send it any message). For a group: add the bot to the group and send a message there.
-3. Find the chat id — run this on the server and look for `"chat":{"id":…}` (a group id starts with `-`):
+2. Open your new bot and press **Start**. For a group: add the bot to the group, then send
+   `/start@<your_bot_username>` there. Bots don't see ordinary group messages by default, so a plain
+   message won't show up in step 3.
+3. Find the chat id — run this on the server and copy the `"chat":{"id":…}` value **exactly**, minus
+   sign included. Don't add `-100` yourself: a normal group id looks like `-123456789`, and a
+   supergroup's id already starts with `-100` when Telegram shows it.
    ```bash
    curl -s "https://api.telegram.org/bot<TOKEN>/getUpdates"
    ```
+   Getting `"result":[]`? Send the `/start…` message again and re-run it.
 4. Add both to `/var/www/toolkit/.env.local` (several chats: comma-separated ids):
    ```ini
    TELEGRAM_BOT_TOKEN=<TOKEN>
@@ -204,7 +209,9 @@ Nothing is sent until both variables are set.
    curl -s "https://api.telegram.org/bot<TOKEN>/sendMessage" -d chat_id=<CHAT_ID> -d text="ToolKit.Am test"
    ```
 
-If an alert fails (wrong id, bot blocked), the order is still saved and the reason appears in `pm2 logs toolkit` as `[telegram] …`.
+If an alert fails, the order is still saved and the reason appears in `pm2 logs toolkit` as `[telegram] …`.
+`chat not found` means the id is wrong (often a hand-added `-100`), the bot isn't in that chat, or the
+token belongs to a different bot — `curl -s "https://api.telegram.org/bot<TOKEN>/getMe"` shows which bot it is.
 Keep the token secret: anyone with it can send messages as your bot.
 
 ## Backups
