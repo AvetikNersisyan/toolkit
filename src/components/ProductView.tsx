@@ -102,7 +102,10 @@ export function ProductView({ product, related, reviews, preview = false }: Prop
 
       <header className="border-b border-line px-4">
         <div className="mx-auto flex min-h-14 max-w-[1120px] items-center justify-between gap-3">
-          <Logo on="light" priority className="h-8 sm:h-9" />
+          {/* The logo's alt text ("Toolkit.am") names the link for screen readers. */}
+          <Link href="/" className="flex min-h-11 flex-none items-center">
+            <Logo on="light" priority className="h-8 sm:h-9" />
+          </Link>
           <a
             href={`tel:${site.phone}`}
             aria-label={`Զանգահարել ${site.phoneDisplay}`}
@@ -376,8 +379,10 @@ export function ProductView({ product, related, reviews, preview = false }: Prop
       <footer className="bg-ink px-4 py-8 text-sm text-[#c9ced2]">
         <div className="mx-auto flex max-w-[1120px] flex-wrap justify-between gap-4">
           <div className="flex flex-col gap-1">
-            {/* self-start: a flex column would otherwise stretch the logo to the column's width */}
-            <Logo on="dark" className="mb-1 h-8 self-start" />
+            {/* self-start: a flex column would otherwise stretch the link (and logo) to the column's width */}
+            <Link href="/" className="mb-1 self-start">
+              <Logo on="dark" className="h-8" />
+            </Link>
             <div>
               {site.address} · {site.workingHours}
             </div>
