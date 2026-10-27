@@ -21,3 +21,14 @@ export function normalizeArmenianPhone(input: string): string | null {
   if (digits.length !== 8) return null;
   return `+374${digits}`;
 }
+
+/** "2026-10-26" → "26.10.2026" (plain string work, so no time-zone shifts). */
+export function formatDay(isoDate: string): string {
+  const [y, m, d] = isoDate.split("-");
+  return `${d}.${m}.${y}`;
+}
+
+/** 5 → "5", 4.75 → "4.8" */
+export function formatRating(n: number): string {
+  return Number.isInteger(n) ? String(n) : n.toFixed(1);
+}

@@ -4,12 +4,11 @@ import Image from "next/image";
 import { useState } from "react";
 import type { ImageKind } from "@/db/schema";
 import { deleteImage, moveImage, removeVideo, uploadImage, uploadVideo } from "./actions";
-import { Section, smallButton } from "./fields";
+import { IMAGE_ACCEPT, Section, smallButton } from "./fields";
 import type { ActionResult } from "./input";
 
 type Img = { id: number; src: string; width: number; height: number };
 
-const IMAGE_TYPES = "image/jpeg,image/png,image/webp,image/avif";
 const isSquare = (i: Img) => Math.abs(i.width / i.height - 1) <= 0.03;
 
 /** A button that opens the file picker. */
@@ -180,7 +179,7 @@ export function MediaManager({
         ) : (
           <p className="text-sm text-muted">Լուսանկարներ դեռ չկան։</p>
         )}
-        <FilePick label="+ Ավելացնել լուսանկարներ" accept={IMAGE_TYPES} multiple disabled={disabled} onFiles={(f) => uploadImages("gallery", f)} />
+        <FilePick label="+ Ավելացնել լուսանկարներ" accept={IMAGE_ACCEPT} multiple disabled={disabled} onFiles={(f) => uploadImages("gallery", f)} />
       </div>
 
       {/* Single-image slots */}
@@ -200,7 +199,7 @@ export function MediaManager({
               </div>
             ) : null}
             <div className="flex flex-wrap gap-2">
-              <FilePick label={img ? "Փոխարինել" : "+ Վերբեռնել"} accept={IMAGE_TYPES} disabled={disabled} onFiles={(f) => uploadImages(kind, f.slice(0, 1))} />
+              <FilePick label={img ? "Փոխարինել" : "+ Վերբեռնել"} accept={IMAGE_ACCEPT} disabled={disabled} onFiles={(f) => uploadImages(kind, f.slice(0, 1))} />
               {img ? (
                 <button
                   type="button"

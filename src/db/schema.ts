@@ -1,5 +1,5 @@
 import { sql } from "drizzle-orm";
-import { index, integer, jsonb, pgTable, serial, text, timestamp, uniqueIndex } from "drizzle-orm/pg-core";
+import { boolean, check, date, index, integer, jsonb, pgTable, serial, text, timestamp, uniqueIndex } from "drizzle-orm/pg-core";
 
 export const ORDER_STATUSES = [
   "new",
@@ -131,7 +131,44 @@ export const orders = pgTable(
   ],
 );
 
+export const reviews = pgTable(
+  "reviews",
+  {
+    id: serial("id").primaryKey(),
+    createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+    updatedAt: timestamp("updated_at", { withTimezone: true }).notNull().defaultNow(),
+    productId: integer("product_id")
+      .notNull()
+      .references(() => products.id, { onDelete: "cascade" }),
+    visible: boolean("visible").notNull().default(true),
+    /** Manual order on the page; new reviews get the lowest number so they come first. */
+    sortOrder: integer("sort_order").notNull().default(0),
+
+    name: text("name").notNull(),
+    city: text("city"),
+    /** 1–5 stars (enforced by a check constraint). */
+    rating: integer("rating").notNull(),
+    text: text("text").notNull(),
+    /** Calendar date shown on the card, "YYYY-MM-DD". */
+    reviewDate: date("review_date").notNull(),
+
+    // Optional customer photo: file name inside UPLOAD_DIR, like product_images.file
+    photoFile: text("photo_file"),
+    photoWidth: integer("photo_width"),
+    photoHeight: integer("photo_height"),
+
+    /** The real order this review came from; shows the "verified buyer" badge. One review per order. */
+    orderId: integer("order_id").references(() => orders.id, { onDelete: "set null" }),
+  },
+  (t) => [
+    index("reviews_product_idx").on(t.productId, t.visible, t.sortOrder),
+    uniqueIndex("reviews_order_idx").on(t.orderId),
+    check("reviews_rating_check", sql`${t.rating} between 1 and 5`),
+  ],
+);
+
 export type Order = typeof orders.$inferSelect;
 export type NewOrder = typeof orders.$inferInsert;
 export type ProductRow = typeof products.$inferSelect;
 export type ProductImageRow = typeof productImages.$inferSelect;
+export type ReviewRow = typeof reviews.$inferSelect;

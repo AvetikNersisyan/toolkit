@@ -15,6 +15,13 @@
       "when": 1793041103406,
       "tag": "0001_products",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1793133425370,
+      "tag": "0002_reviews",
+      "breakpoints": true
     }
   ]
 }

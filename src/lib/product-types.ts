@@ -43,3 +43,27 @@ export type Product = {
   /** Meta share preview text. */
   metaDescription: string;
 };
+
+export type Review = {
+  id: number;
+  name: string;
+  city?: string;
+  /** 1–5 */
+  rating: number;
+  text: string;
+  /** "YYYY-MM-DD" */
+  date: string;
+  photo?: { src: string; width: number; height: number };
+  /** Linked to a real order of this product. */
+  verified: boolean;
+};
+
+export type ReviewSummary = {
+  average: number;
+  count: number;
+  /** How many reviews gave 1, 2, 3, 4 and 5 stars (index 0 = 1 star). */
+  counts: [number, number, number, number, number];
+};
+
+/** Visible reviews in display order; summary is null when there are none. */
+export type ProductReviews = { list: Review[]; summary: ReviewSummary | null };

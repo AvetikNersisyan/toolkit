@@ -1,7 +1,6 @@
 "use server";
 
 import { and, asc, count, eq, inArray, max, sql } from "drizzle-orm";
-import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { z } from "zod";
 import { db } from "@/db";
@@ -9,13 +8,9 @@ import { IMAGE_KINDS, productImages, products, type ImageKind } from "@/db/schem
 import { removeUpload, saveImage, saveVideo, UploadError } from "@/lib/uploads";
 import { requireAdmin } from "../require-admin";
 import { fieldErrors, NewProductInput, ProductInput, type ActionResult, type ProductFormValues } from "./input";
+import { refreshSite } from "./revalidate";
 
 const Id = z.number().int().positive();
-
-/** Product pages are cached; any change can show up on several of them (related cards), so refresh all. */
-function refreshSite() {
-  revalidatePath("/", "layout");
-}
 
 const isUniqueViolation = (err: unknown) => (err as { code?: string })?.code === "23505";
 const slugTaken: ActionResult = { ok: false, error: "Ստուգեք նշված դաշտերը", fieldErrors: { slug: "Այս հասցեն արդեն օգտագործվում է" } };

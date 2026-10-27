@@ -10,26 +10,60 @@ import {
   GiftIcon,
   PhoneIcon,
   ShieldIcon,
+  StarIcon,
   TruckIcon,
 } from "@/components/Icons";
 import { OrderSection } from "@/components/OrderSection";
+import { ReviewList } from "@/components/ReviewList";
+import { STAR_ON, Stars } from "@/components/Stars";
 import { StickyOrderBar } from "@/components/StickyOrderBar";
 import { TrackViewContent } from "@/components/TrackViewContent";
 import { VideoBlock } from "@/components/VideoBlock";
 import { site } from "@/data/site";
-import { discountPercent, formatAmd } from "@/lib/format";
-import type { Product } from "@/lib/product-types";
+import { discountPercent, formatAmd, formatRating } from "@/lib/format";
+import type { Product, ProductReviews, ReviewSummary } from "@/lib/product-types";
 
 const sectionTitle = "m-0 text-[clamp(24px,3vw,32px)] font-extrabold leading-tight";
 
 type Props = {
   product: Product;
   related: Product[];
+  reviews: ProductReviews;
   /** Admin preview: no tracking, shows a banner. */
   preview?: boolean;
 };
 
-export function ProductView({ product, related, preview = false }: Props) {
+/** Big average, stars, count and one bar per star level. */
+function ReviewsOverview({ summary }: { summary: ReviewSummary }) {
+  return (
+    <div className="flex flex-[0_1_280px] flex-col gap-3">
+      <div className="flex items-end gap-3">
+        <span className="text-5xl font-extrabold leading-none">{formatRating(summary.average)}</span>
+        <div className="flex flex-col gap-1">
+          <Stars value={summary.average} />
+          <span className="text-sm text-muted">{summary.count} կարծիք</span>
+        </div>
+      </div>
+      <div className="flex flex-col gap-1.5">
+        {[5, 4, 3, 2, 1].map((star) => {
+          const n = summary.counts[star - 1];
+          return (
+            <div key={star} className="flex items-center gap-2 text-sm">
+              <span className="w-3 text-right tabular-nums">{star}</span>
+              <StarIcon className={`h-3.5 w-3.5 flex-none ${STAR_ON}`} />
+              <div className="h-2 flex-1 overflow-hidden rounded-full bg-line">
+                <div className="h-full rounded-full bg-[#f59e0b]" style={{ width: `${(n / summary.count) * 100}%` }} />
+              </div>
+              <span className="w-6 text-right tabular-nums text-muted">{n}</span>
+            </div>
+          );
+        })}
+      </div>
+    </div>
+  );
+}
+
+export function ProductView({ product, related, reviews, preview = false }: Props) {
   const images = product.images.map((i) => i.src);
   const discount = discountPercent(product.price, product.oldPrice);
 
@@ -97,6 +131,14 @@ export function ProductView({ product, related, preview = false }: Props) {
               ) : null}
             </div>
             <h1 className="m-0 text-[clamp(28px,4vw,42px)] font-extrabold leading-[1.15]">{product.name}</h1>
+            {reviews.summary ? (
+              <a href="#reviews" className="flex w-fit min-h-11 items-center gap-2 text-[15px] font-medium hover:underline">
+                <Stars value={reviews.summary.average} className="h-[18px] w-[18px]" />
+                <span>
+                  {formatRating(reviews.summary.average)} · {reviews.summary.count} կարծիք
+                </span>
+              </a>
+            ) : null}
             {product.subheadline ? <p className="m-0 text-lg text-ink-2">{product.subheadline}</p> : null}
             {product.highlights.length ? (
               <ul className="m-0 flex list-none flex-col gap-2.5 p-0">
@@ -230,6 +272,19 @@ export function ProductView({ product, related, preview = false }: Props) {
                 ) : null}
               </div>
             ) : null}
+          </div>
+        </section>
+      ) : null}
+
+      {/* Reviews */}
+      {reviews.summary ? (
+        <section id="reviews" className="bg-soft px-4 py-14">
+          <div className="mx-auto flex max-w-[1120px] flex-col gap-7">
+            <h2 className={sectionTitle}>Գնորդների կարծիքներ</h2>
+            <div className="flex flex-wrap items-start gap-8">
+              <ReviewsOverview summary={reviews.summary} />
+              <ReviewList reviews={reviews.list} />
+            </div>
           </div>
         </section>
       ) : null}

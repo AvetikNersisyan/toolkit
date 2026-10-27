@@ -4,6 +4,7 @@ import { ProductView } from "@/components/ProductView";
 import { site } from "@/data/site";
 import { formatAmd } from "@/lib/format";
 import { getPublishedProduct, getRelatedProducts } from "@/lib/products";
+import { getProductReviews } from "@/lib/reviews";
 
 // Nothing is pre-built: each page renders on its first visit and stays cached
 // until a product is saved in the admin (which calls revalidatePath).
@@ -35,6 +36,6 @@ export default async function ProductPage({ params }: Params) {
   const { slug } = await params;
   const product = await getPublishedProduct(slug);
   if (!product) notFound();
-  const related = await getRelatedProducts(product);
-  return <ProductView product={product} related={related} />;
+  const [related, reviews] = await Promise.all([getRelatedProducts(product), getProductReviews(product.id)]);
+  return <ProductView product={product} related={related} reviews={reviews} />;
 }

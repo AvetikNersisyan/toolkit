@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { ProductView } from "@/components/ProductView";
 import { getProductById, getRelatedProducts } from "@/lib/products";
+import { getProductReviews } from "@/lib/reviews";
 
 export const dynamic = "force-dynamic";
 export const metadata: Metadata = { title: "Նախադիտում" };
@@ -12,6 +13,6 @@ export default async function PreviewProduct({ params }: { params: Promise<{ id:
   if (!Number.isInteger(id) || id <= 0) notFound();
   const product = await getProductById(id);
   if (!product) notFound();
-  const related = await getRelatedProducts(product);
-  return <ProductView product={product} related={related} preview />;
+  const [related, reviews] = await Promise.all([getRelatedProducts(product), getProductReviews(product.id)]);
+  return <ProductView product={product} related={related} reviews={reviews} preview />;
 }

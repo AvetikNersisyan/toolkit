@@ -40,3 +40,6 @@ export function Section({ title, hint, error, children }: { title: string; hint?
     </section>
   );
 }
+
+/** File types the upload pipeline (sharp) accepts. */
+export const IMAGE_ACCEPT = "image/jpeg,image/png,image/webp,image/avif";

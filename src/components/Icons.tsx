@@ -45,3 +45,8 @@ export const GiftIcon = ({ className }: P) => (
 export const SuccessIcon = ({ className }: P) => (
   <svg {...base} strokeWidth={2.5} className={className}><circle cx="12" cy="12" r="10" /><path d="m8 12 3 3 5-6" /></svg>
 );
+export const StarIcon = ({ className }: P) => (
+  <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden className={className}>
+    <path d="m12 2.5 2.9 6.1 6.6.8-4.9 4.6 1.3 6.6L12 17.3l-5.9 3.3 1.3-6.6-4.9-4.6 6.6-.8z" />
+  </svg>
+);

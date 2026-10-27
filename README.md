@@ -20,7 +20,8 @@ Production: `npm run build && npm run start`. Node 20+.
 | What | File |
 | --- | --- |
 | Products (edited in the admin at `/admin/products`) | `products` / `product_images` tables, read via `src/lib/products.ts` |
-| Product editor (form, photo/video manager, server actions) | `src/app/admin/products/` |
+| Product editor (form, photo/video manager, reviews, server actions) | `src/app/admin/products/` |
+| Reviews on the product page | `src/lib/reviews.ts`, `src/components/ReviewList.tsx`, `ProductView.tsx` |
 | Upload processing and serving | `src/lib/uploads.ts`, `src/app/uploads/[file]/route.ts` |
 | Shop settings (name, phone, messengers, delivery, warranty) | `src/data/site.ts` |
 | Product page layout | `src/components/ProductView.tsx` (route: `src/app/[slug]/page.tsx`) |
@@ -42,6 +43,15 @@ Everything in `[brackets]` is placeholder text to replace.
 The offer end (Yerevan time) sets the countdown. When it passes, the countdown says the offer ended — update the date and price for the next promotion. Archive a product instead of deleting it; old orders keep its name and price either way.
 
 Photos are resized per device by Next.js (`/_next/image`: WebP, or JPEG for browsers without WebP support) and cached on disk; see "How images are cached" in DEPLOY.md.
+
+## Reviews
+
+Added per product in its editor (**Կարծիքներ**): name, city, 1–5 stars, text, date, an optional customer photo, and an optional linked order.
+
+- The page shows `★ 4.8 · 23 կարծիք` under the title and a reviews section before "How to order"; both appear once a product has a visible review.
+- Average and star bars count visible reviews only. Hide a review instead of deleting it if you may want it back.
+- **Verified buyer** appears only for a review linked to a real order of that product, and each order can back one review — the server and the database both enforce this.
+- Reviews are shown in your order (↑↓); new ones go to the top. The first 6 show, the rest behind "Show all".
 
 ## Orders
 

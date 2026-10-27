@@ -182,11 +182,56 @@ export function toFormValues(row: ProductRow): ProductFormValues {
 }
 
 /** First message per top-level field, for showing next to that field or section. */
-export function fieldErrors(error: z.ZodError): FieldErrors {
-  const out: FieldErrors = {};
+export function fieldErrors<K extends string = keyof ProductFormValues>(error: z.ZodError): Partial<Record<K, string>> {
+  const out: Partial<Record<K, string>> = {};
   for (const issue of error.issues) {
-    const key = issue.path[0] as keyof ProductFormValues | undefined;
+    const key = issue.path[0] as K | undefined;
     if (key && !out[key]) out[key] = issue.message;
   }
   return out;
 }
+
+// ---- Reviews ----
+
+export type ReviewFieldErrors = Partial<Record<"name" | "city" | "rating" | "text" | "date" | "orderId" | "photo", string>>;
+export type ReviewResult = { ok: true } | { ok: false; error: string; fieldErrors?: ReviewFieldErrors };
+
+/** Today's date in Yerevan, "YYYY-MM-DD". */
+export function todayYerevan(): string {
+  return toYerevanInput(new Date()).slice(0, 10);
+}
+
+/** "YYYY-MM-DD" that is an actual calendar day (rejects 2026-02-31). */
+function isRealDay(v: string): boolean {
+  if (!/^\d{4}-\d{2}-\d{2}$/.test(v)) return false;
+  const d = new Date(`${v}T00:00:00Z`);
+  return !Number.isNaN(d.getTime()) && d.toISOString().slice(0, 10) === v;
+}
+
+/** Text fields arrive as strings from FormData (the form may carry a photo). */
+export const ReviewInput = z.object({
+  name: text(60).min(2, "Գրեք անունը"),
+  city: optText(60),
+  rating: z
+    .string()
+    .regex(/^[1-5]$/, "Ընտրեք 1–5 աստղ")
+    .transform(Number),
+  text: text(2000).min(5, "Գրեք կարծիքը (առնվազն 5 նիշ)"),
+  date: z
+    .string()
+    .trim()
+    .refine(isRealDay, "Սխալ ամսաթիվ")
+    .refine((v) => v <= todayYerevan(), "Ամսաթիվը չի կարող լինել ապագայում"),
+  orderId: z
+    .string()
+    .trim()
+    .transform((v, ctx) => {
+      if (!v) return null;
+      if (!/^\d{1,9}$/.test(v)) {
+        ctx.addIssue({ code: z.ZodIssueCode.custom, message: "Սխալ պատվեր" });
+        return z.NEVER;
+      }
+      return Number(v);
+    }),
+  visible: z.boolean(),
+});
