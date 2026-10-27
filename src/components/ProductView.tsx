@@ -13,6 +13,7 @@ import {
   StarIcon,
   TruckIcon,
 } from "@/components/Icons";
+import { Logo } from "@/components/Logo";
 import { OrderSection } from "@/components/OrderSection";
 import { ReviewList } from "@/components/ReviewList";
 import { STAR_ON, Stars } from "@/components/Stars";
@@ -101,7 +102,7 @@ export function ProductView({ product, related, reviews, preview = false }: Prop
 
       <header className="border-b border-line px-4">
         <div className="mx-auto flex min-h-14 max-w-[1120px] items-center justify-between gap-3">
-          <div className="min-w-0 truncate text-lg font-extrabold tracking-wide sm:text-xl">{site.shopName}</div>
+          <Logo on="light" priority className="h-8 sm:h-9" />
           <a
             href={`tel:${site.phone}`}
             aria-label={`Զանգահարել ${site.phoneDisplay}`}
@@ -375,7 +376,8 @@ export function ProductView({ product, related, reviews, preview = false }: Prop
       <footer className="bg-ink px-4 py-8 text-sm text-[#c9ced2]">
         <div className="mx-auto flex max-w-[1120px] flex-wrap justify-between gap-4">
           <div className="flex flex-col gap-1">
-            <div className="text-base font-extrabold text-white">{site.shopName}</div>
+            {/* self-start: a flex column would otherwise stretch the logo to the column's width */}
+            <Logo on="dark" className="mb-1 h-8 self-start" />
             <div>
               {site.address} · {site.workingHours}
             </div>

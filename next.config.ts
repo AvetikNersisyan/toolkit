@@ -4,8 +4,8 @@ const nextConfig: NextConfig = {
   images: {
     // WebP for browsers that accept it (all current ones); Next falls back to JPEG for the rest. No AVIF: slow to encode.
     formats: ["image/webp"],
-    // Only uploaded product photos go through the optimizer.
-    localPatterns: [{ pathname: "/uploads/**" }],
+    // Only uploaded product photos and the logo go through the optimizer.
+    localPatterns: [{ pathname: "/uploads/**" }, { pathname: "/brand/**" }],
     deviceSizes: [640, 828, 1080, 1200],
     imageSizes: [128, 256, 384],
     // Upload names are random and never reused, so resized copies can be kept for a year.

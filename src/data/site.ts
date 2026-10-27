@@ -1,7 +1,9 @@
 // Shop-wide settings. Everything in [brackets] is a placeholder to replace.
 
 export const site = {
-  shopName: "ToolKit.Am",
+  shopName: "Toolkit.am",
+  /** Second half of the browser tab title: "Toolkit.am | Էլեկտրական գործիքներ". */
+  tagline: "Էլեկտրական գործիքներ",
   /** Public address; used for absolute links such as the Meta share image. */
   url: "https://toolkit.am",
   /** Shown in the header and footer; used for the tel: link. Digits only after +. */
