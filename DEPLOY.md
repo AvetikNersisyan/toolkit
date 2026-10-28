@@ -214,6 +214,24 @@ If an alert fails, the order is still saved and the reason appears in `pm2 logs 
 token belongs to a different bot — `curl -s "https://api.telegram.org/bot<TOKEN>/getMe"` shows which bot it is.
 Keep the token secret: anyone with it can send messages as your bot.
 
+## Google Analytics
+
+1. In [Google Analytics](https://analytics.google.com) create a GA4 property, then **Admin → Data streams → Add stream → Web**
+   for `https://toolkit.am`. Leave **Enhanced measurement** on — it records page views, scrolls,
+   outbound clicks, video engagement and file downloads without any code.
+2. Copy the **Measurement ID** (`G-…`) into `/var/www/toolkit/.env.local`:
+   ```ini
+   NEXT_PUBLIC_GA_ID=G-XXXXXXXXXX
+   ```
+3. Rebuild — `NEXT_PUBLIC_` values are baked in at build time — then reload:
+   ```bash
+   cd /var/www/toolkit && npm run build && pm2 reload toolkit
+   ```
+4. Open the site and check **Reports → Realtime** in GA: your visit appears within a minute.
+
+GA is not loaded on `/admin`, so your own admin work doesn't count as traffic. Custom events go
+through `gaEvent(name, params)` in `src/lib/tracking.ts`.
+
 ## Backups
 
 Products, orders and uploads are now real data. A nightly copy of both is enough:

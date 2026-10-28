@@ -61,6 +61,10 @@ Added per product in its editor (**Կարծիքներ**): name, city, 1–5 star
 - UTM parameters and `fbclid` from the ad link are saved with each order, so you can see which campaign sold what.
 - Each new order can be sent to Telegram (`src/lib/telegram.ts`; set `TELEGRAM_BOT_TOKEN` and `TELEGRAM_CHAT_ID`, see DEPLOY.md). A failed alert never blocks the order.
 
+## Google Analytics
+
+Set `NEXT_PUBLIC_GA_ID` (GA4 measurement id) and rebuild; GA4's enhanced measurement then tracks page views and other default metrics on every page except `/admin` (`src/components/GoogleAnalytics.tsx`). For custom events call `gaEvent("name", { ... })` from `src/lib/tracking.ts`; it does nothing while GA is off.
+
 **Admin:** open `/admin`, log in with `ADMIN_USER` / `ADMIN_PASSWORD`. Filter by status, tap the phone number to call, change status (Նոր → Հաստատված → Ուղարկված → Առաքված, or Չեղարկված / Վերադարձված), add a note, download CSV. If either variable is empty, the admin is switched off.
 
 ## Meta Pixel and Conversions API

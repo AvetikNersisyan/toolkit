@@ -1,4 +1,5 @@
 import type { Metadata, Viewport } from "next";
+import { GoogleAnalytics } from "@/components/GoogleAnalytics";
 import { MetaPixel } from "@/components/MetaPixel";
 import { site } from "@/data/site";
 import "./globals.css";
@@ -31,6 +32,7 @@ export default function RootLayout({ children }: Readonly<{ children: React.Reac
       <body>
         {children}
         <MetaPixel />
+        <GoogleAnalytics />
       </body>
     </html>
   );

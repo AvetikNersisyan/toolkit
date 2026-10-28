@@ -1,9 +1,20 @@
-// Browser-side tracking helpers: Meta Pixel calls and ad attribution (UTM / fbclid).
+// Browser-side tracking helpers: Meta Pixel, Google Analytics and ad attribution (UTM / fbclid).
 
 declare global {
   interface Window {
     fbq?: (...args: unknown[]) => void;
+    gtag?: (...args: unknown[]) => void;
+    dataLayer?: unknown[];
   }
+}
+
+/** GA4 measurement id ("G-XXXXXXXXXX"). Anything else is ignored, since it is written into an inline script. */
+export const GA_ID = /^G-[A-Z0-9]{4,20}$/.test(process.env.NEXT_PUBLIC_GA_ID ?? "") ? process.env.NEXT_PUBLIC_GA_ID! : "";
+
+/** Sends a custom GA4 event, e.g. gaEvent("order_submitted", { value: 45000, currency: "AMD" }). No-op when GA is off. */
+export function gaEvent(name: string, params?: Record<string, unknown>) {
+  if (typeof window === "undefined" || !window.gtag) return;
+  window.gtag("event", name, params ?? {});
 }
 
 export const PIXEL_ID = process.env.NEXT_PUBLIC_META_PIXEL_ID ?? "";
