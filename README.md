@@ -61,11 +61,17 @@ Added per product in its editor (**Կարծիքներ**): name, city, 1–5 star
 - UTM parameters and `fbclid` from the ad link are saved with each order, so you can see which campaign sold what.
 - Each new order can be sent to Telegram (`src/lib/telegram.ts`; set `TELEGRAM_BOT_TOKEN` and `TELEGRAM_CHAT_ID`, see DEPLOY.md). A failed alert never blocks the order.
 
+**Admin:** open `/admin`, log in with `ADMIN_USER` / `ADMIN_PASSWORD`. Filter by status, tap the phone number to call, change status (Նոր → Հաստատված → Ուղարկված → Առաքված, or Չեղարկված / Վերադարձված), add a note, download CSV. If either variable is empty, the admin is switched off.
+
 ## Google Analytics
 
 Set `NEXT_PUBLIC_GA_ID` (GA4 measurement id) and rebuild; GA4's enhanced measurement then tracks page views and other default metrics on every page except `/admin` (`src/components/GoogleAnalytics.tsx`). For custom events call `gaEvent("name", { ... })` from `src/lib/tracking.ts`; it does nothing while GA is off.
 
-**Admin:** open `/admin`, log in with `ADMIN_USER` / `ADMIN_PASSWORD`. Filter by status, tap the phone number to call, change status (Նոր → Հաստատված → Ուղարկված → Առաքված, or Չեղարկված / Վերադարձված), add a note, download CSV. If either variable is empty, the admin is switched off.
+## Search engines and error pages
+
+- `/robots.txt` (`src/app/robots.ts`) allows everything except `/admin` and `/api/`, and points to the sitemap.
+- `/sitemap.xml` (`src/app/sitemap.ts`) lists the home page and every published product, read from the database on each request. Submit `https://toolkit.am/sitemap.xml` once in Google Search Console.
+- Unknown URLs and unpublished products show `src/app/not-found.tsx`; a page that crashes (for example the database is down) shows `src/app/error.tsx` with a retry button. Both use the shop header and footer from `src/components/SiteChrome.tsx`.
 
 ## Meta Pixel and Conversions API
 

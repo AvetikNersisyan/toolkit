@@ -8,14 +8,13 @@ import {
   CheckIcon,
   ChevronDownIcon,
   GiftIcon,
-  PhoneIcon,
   ShieldIcon,
   StarIcon,
   TruckIcon,
 } from "@/components/Icons";
-import { Logo } from "@/components/Logo";
 import { OrderSection } from "@/components/OrderSection";
 import { ReviewList } from "@/components/ReviewList";
+import { SiteFooter, SiteHeader } from "@/components/SiteChrome";
 import { STAR_ON, Stars } from "@/components/Stars";
 import { StickyOrderBar } from "@/components/StickyOrderBar";
 import { TrackViewContent } from "@/components/TrackViewContent";
@@ -100,22 +99,7 @@ export function ProductView({ product, related, reviews, preview = false }: Prop
       )}
       <CountdownBar offerEnd={product.offerEnd} note="Վճարում ստանալիս · Կանխավճար չկա" />
 
-      <header className="border-b border-line px-4">
-        <div className="mx-auto flex min-h-14 max-w-[1120px] items-center justify-between gap-3">
-          {/* The logo's alt text ("Toolkit.am") names the link for screen readers. */}
-          <Link href="/" className="flex min-h-11 flex-none items-center">
-            <Logo on="light" priority className="h-8 sm:h-9" />
-          </Link>
-          <a
-            href={`tel:${site.phone}`}
-            aria-label={`Զանգահարել ${site.phoneDisplay}`}
-            className="flex min-h-11 min-w-11 flex-none items-center justify-center gap-2 font-bold"
-          >
-            <PhoneIcon className="h-5 w-5" />
-            <span className="hidden sm:inline">{site.phoneDisplay}</span>
-          </a>
-        </div>
-      </header>
+      <SiteHeader />
 
       {/* Hero */}
       <section className="px-4 pb-12 pt-8">
@@ -376,23 +360,7 @@ export function ProductView({ product, related, reviews, preview = false }: Prop
         </section>
       ) : null}
 
-      <footer className="bg-ink px-4 py-8 text-sm text-[#c9ced2]">
-        <div className="mx-auto flex max-w-[1120px] flex-wrap justify-between gap-4">
-          <div className="flex flex-col gap-1">
-            {/* self-start: a flex column would otherwise stretch the link (and logo) to the column's width */}
-            <Link href="/" className="mb-1 self-start">
-              <Logo on="dark" className="h-8" />
-            </Link>
-            <div>
-              {site.address} · {site.workingHours}
-            </div>
-          </div>
-          <div className="flex flex-col gap-1">
-            <a href={`tel:${site.phone}`}>{site.phoneDisplay}</a>
-            <div>{site.legalName}</div>
-          </div>
-        </div>
-      </footer>
+      <SiteFooter />
 
       <StickyOrderBar price={product.price} />
     </div>
